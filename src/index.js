@@ -3,8 +3,7 @@ import ReactDOM from 'react-dom'
 import * as serviceWorker from './serviceWorker'
 
 const NoteApp = () => {
-
-    const [notes, setNotes] = useState(JSON.parse(localStorage.getItem('notes')) || [])
+    const [notes, setNotes] = useState([])
     const [noteBody, setNoteBody] = useState('')
     const [title, setTitle] = useState('')
     const addNote = (e) => {
@@ -19,19 +18,18 @@ const NoteApp = () => {
     const removeNote = (title) => setNotes(notes.filter((note) => note.title !== title))
 
     useEffect(() => {
+        setNotes(JSON.parse(localStorage.getItem('notes')) || [])
+    }, [])
+
+    useEffect(() => {
         localStorage.setItem('notes', JSON.stringify(notes))
-    })
+    }, [notes])
     return (
         <div>
             <h1>Test</h1>
-            {notes.map((note, index) => (
-                <div>
-                    <h4>{index + 1}. {note.title} </h4>
-                    <p>{note.noteBody}</p>
-                    <button key={index} onClick={() => removeNote(note.title)} >Remove</button>
-                </div>
-            )
-            )}
+            {
+                notes.map((note, index) => <Note key={index + 100} note={note} index={index} removeNote = {removeNote} />
+                )}
             <p>Add note</p>
             <form onSubmit={addNote}>
                 <input value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -42,29 +40,22 @@ const NoteApp = () => {
     )
 }
 
-const App = (props) => {
-    const [count, setCount] = useState(props.count)
-    const [text, setText] = useState('Count')
-
+const Note = ({ index, note, removeNote }) => {
     useEffect(() => {
-        document.title = `${text}: ${count}`
-    })
-
+        console.log('setting useEffect')
+        return () => {
+            console.log('Cleaning up effect')
+        }
+    }, [])
     return (
         <div>
-            <input value={text} onChange={(e) => setText(e.target.value)} />
-            <p>{text}: {count} </p>
-            <button onClick={() => setCount(count + 1)}>+1</button>
-            <button onClick={() => setCount(count - 1)}>-1</button>
-            <button onClick={() => setCount(props.count)}>Reset</button>
+            <h4>{index + 1}. {note.title} </h4>
+            <p>{note.noteBody}</p>
+            <button key={index} onClick={() => removeNote(note.title)} >Remove</button>
         </div>
     )
 }
 
-App.defaultProps = {
-    count: 0,
-    text: 'Count'
-}
 
 ReactDOM.render(<NoteApp />, document.getElementById('root'));
 
